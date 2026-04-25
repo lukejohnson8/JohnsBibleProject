@@ -437,7 +437,7 @@ async function fetchVerseText(book, verse) {
   if (verseCache[key]) return verseCache[key];
   const ref = encodeURIComponent(`${book} ${verse}`);
   try {
-    const res = await fetch(`https://bible-api.com/${ref}?translation=NIV`);
+    const res = await fetch(`https://bible-api.com/${ref}?translation=web`);
     if (!res.ok) throw new Error();
     const data = await res.json();
     const text = data.text?.trim().replace(/\s+/g,' ') || '(text unavailable)';
