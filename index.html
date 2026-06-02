@@ -343,12 +343,13 @@ body {
 .canon-book-item.open .canon-book-chevron { transform: rotate(90deg); color: var(--gold); }
 /* verse panel for canon view — right-aligned when space */
 .canon-book-item .verse-panel {
-  width: 280px; left: 100%; top: 0;
-  transform: translateX(10px) scaleX(0);
-  transform-origin: left center;
+  width: 280px; left: 0; top: calc(100% + 8px);
+  transform: translateX(0) scaleY(0);
+  transform-origin: top center;
+  background: var(--panel-bg);
 }
 .canon-book-item.open .verse-panel {
-  transform: translateX(10px) scaleX(1);
+  transform: translateX(0) scaleY(1);
   opacity: 1; pointer-events: auto;
 }
 
@@ -416,14 +417,7 @@ body {
   .book-name { font-size: 1.2rem; }
   .book-theme { font-size: 1rem; max-width: 170px; }
   .verse-panel { width: min(300px, calc(100vw - 32px)); }
-  .canon-book-item .verse-panel {
-    left: 0; top: 100%; transform: translateX(0) scaleY(0) !important;
-    transform-origin: top center;
-    width: min(300px, calc(100vw - 32px));
-  }
-  .canon-book-item.open .verse-panel {
-    transform: translateX(0) scaleY(1) !important;
-  }
+  .canon-book-item .verse-panel { width: min(280px, calc(100vw - 32px)); }
   .theme-pill .verse-panel { left: 0; }
   .theme-node { width: 100%; }
   .canon-wrap, .theme-wrap { padding: 24px 16px 60px; }
