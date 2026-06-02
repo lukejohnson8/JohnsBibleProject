@@ -3,397 +3,509 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>John's Keystone Bible Verses</title>
+<title>John's Scripture Atlas</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;500&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ═══════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #00002d;
-    --white: #ffffff;
-    --gold: #c9a96e;
-    --gold-dim: rgba(201, 169, 110, 0.15);
-    --white-dim: rgba(255,255,255,0.07);
-    --white-border: rgba(255,255,255,0.55);
-    --glow: rgba(201,169,110,0.18);
-  }
+:root {
+  --bg: #00002d;
+  --white: #ffffff;
+  --gold: #c9a96e;
+  --gold-faint: rgba(201,169,110,0.12);
+  --gold-border: rgba(201,169,110,0.4);
+  --white-border: rgba(255,255,255,0.5);
+  --panel-bg: #00051e;
+}
 
-  html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; }
 
-  body {
-    background-color: var(--bg);
-    color: var(--white);
-    font-family: 'EB Garamond', Georgia, serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'EB Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-  /* Star field */
-  .stars {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-  }
-  .star {
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-    animation: twinkle var(--d, 4s) ease-in-out infinite;
-    opacity: var(--o, 0.4);
-  }
-  @keyframes twinkle {
-    0%, 100% { opacity: var(--o, 0.4); transform: scale(1); }
-    50% { opacity: calc(var(--o, 0.4) * 0.3); transform: scale(0.8); }
-  }
+/* Stars */
+.stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.star {
+  position: absolute; background: white; border-radius: 50%;
+  animation: twinkle var(--d,4s) ease-in-out infinite;
+  opacity: var(--o,0.4);
+}
+@keyframes twinkle {
+  0%,100% { opacity: var(--o,0.4); transform: scale(1); }
+  50%      { opacity: calc(var(--o,0.4)*0.3); transform: scale(0.8); }
+}
 
-  header {
-    position: relative;
-    z-index: 10;
-    text-align: center;
-    padding: 60px 20px 40px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
+/* Nav bar */
+.nav {
+  position: sticky; top: 0; z-index: 500;
+  display: flex; align-items: center; gap: 6px;
+  padding: 12px 24px;
+  background: rgba(0,0,30,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.nav-home {
+  font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.4); cursor: pointer;
+  transition: color 0.2s; padding: 4px 8px; border-radius: 6px;
+  text-transform: uppercase; border: none; background: none;
+}
+.nav-home:hover { color: var(--gold); }
+.nav-sep { color: rgba(255,255,255,0.15); font-size: 0.8rem; }
+.nav-current {
+  font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.2em;
+  color: var(--gold); text-transform: uppercase;
+}
+.nav-views {
+  margin-left: auto; display: flex; gap: 6px;
+}
+.nav-view-btn {
+  font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.35); cursor: pointer;
+  transition: color 0.2s, background 0.2s; padding: 5px 12px; border-radius: 20px;
+  text-transform: uppercase; border: 1px solid transparent; background: none;
+}
+.nav-view-btn:hover { color: var(--gold); border-color: var(--gold-border); }
+.nav-view-btn.active { color: var(--gold); border-color: var(--gold-border); background: var(--gold-faint); }
 
-  header h1 {
-    font-family: 'Cinzel', serif;
-    font-weight: 400;
-    font-size: clamp(1.6rem, 4vw, 3rem);
-    letter-spacing: 0.12em;
-    color: var(--white);
-    margin-bottom: 10px;
-  }
+/* Page wrappers */
+.page { display: none; position: relative; z-index: 10; }
+.page.active { display: block; }
 
-  header p {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: clamp(1rem, 2vw, 1.25rem);
-    color: var(--gold);
-    letter-spacing: 0.04em;
-  }
+/* ═══════════════════════════════════════════════════
+   HOME PAGE
+═══════════════════════════════════════════════════ */
+.home-wrap {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+.home-title {
+  font-family: 'Cinzel', serif; font-weight: 400;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  letter-spacing: 0.12em; color: var(--white);
+  margin-bottom: 14px; line-height: 1.2;
+}
+.home-sub {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  color: var(--gold); letter-spacing: 0.04em; margin-bottom: 70px;
+}
+.home-cards {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 28px; max-width: 1000px;
+}
+.home-card {
+  width: 280px;
+  border: 1px solid var(--white-border); border-radius: 24px;
+  padding: 40px 32px 36px;
+  background: rgba(255,255,255,0.025);
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s, transform 0.3s, box-shadow 0.3s;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  text-align: center;
+}
+.home-card:hover {
+  border-color: var(--gold);
+  background: var(--gold-faint);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(201,169,110,0.15);
+}
+.home-card-icon {
+  font-size: 2.8rem; line-height: 1; margin-bottom: 4px;
+}
+.home-card-title {
+  font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 0.12em;
+  color: var(--white); transition: color 0.3s;
+}
+.home-card:hover .home-card-title { color: var(--gold); }
+.home-card-desc {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1.05rem; color: rgba(255,255,255,0.5); line-height: 1.5;
+  transition: color 0.3s;
+}
+.home-card:hover .home-card-desc { color: rgba(201,169,110,0.8); }
+.home-footer {
+  margin-top: 70px;
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1rem; color: rgba(255,255,255,0.2); letter-spacing: 0.05em;
+}
 
-  .testament-label {
-    position: relative;
-    z-index: 10;
-    text-align: center;
-    font-family: 'Cinzel', serif;
-    font-size: 1.4rem;
-    letter-spacing: 0.35em;
-    color: var(--gold);
-    padding: 40px 0 10px;
-    text-transform: uppercase;
-    opacity: 0.8;
-  }
+/* ═══════════════════════════════════════════════════
+   SHARED: SECTION HEADER
+═══════════════════════════════════════════════════ */
+.section-header {
+  text-align: center; padding: 50px 20px 20px; position: relative; z-index: 10;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.section-header h2 {
+  font-family: 'Cinzel', serif; font-weight: 400;
+  font-size: clamp(1.4rem,3.5vw,2.5rem);
+  letter-spacing: 0.12em; color: var(--white); margin-bottom: 8px;
+}
+.section-header p {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: clamp(0.95rem,2vw,1.2rem); color: var(--gold); letter-spacing: 0.04em;
+}
 
-  .testament-divider {
-    width: 200px;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--gold), transparent);
-    margin: 0 auto 10px;
-    opacity: 0.5;
-  }
+/* ═══════════════════════════════════════════════════
+   SHARED: VERSE PANEL & MODAL (used by all views)
+═══════════════════════════════════════════════════ */
+.verse-panel {
+  position: absolute; top: calc(100% + 12px); left: 50%;
+  transform: translateX(-50%) scaleY(0); transform-origin: top center;
+  width: 300px; background: var(--panel-bg);
+  border: 1px solid var(--gold-border); border-radius: 18px;
+  padding: 18px 20px; z-index: 400;
+  opacity: 0; pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 40px rgba(201,169,110,0.1);
+}
+.open > .verse-panel, .book.open .verse-panel {
+  opacity: 1; transform: translateX(-50%) scaleY(1); pointer-events: auto;
+}
+.verse-panel-title {
+  font-family: 'Cinzel', serif; font-size: 1.1rem; letter-spacing: 0.2em;
+  color: var(--gold); text-align: center; margin-bottom: 12px;
+  opacity: 0.8; text-transform: uppercase;
+}
+.verse-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.verse-item {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.7rem;
+  color: rgba(255,255,255,0.85); padding: 7px 10px; border-radius: 8px;
+  cursor: pointer; transition: background 0.2s, color 0.2s;
+  line-height: 1.3; letter-spacing: 0.01em;
+}
+.verse-item:hover { background: var(--gold-faint); color: var(--gold); }
+.verse-item.hidden-verse { display: none; }
+.verse-more-btn {
+  margin-top: 8px; width: 100%; background: none;
+  border: 1px solid var(--gold-border); border-radius: 8px;
+  color: var(--gold); font-family: 'Cinzel', serif;
+  font-size: 0.85rem; letter-spacing: 0.15em; padding: 8px 12px;
+  cursor: pointer; transition: background 0.2s, border-color 0.2s; text-transform: uppercase;
+}
+.verse-more-btn:hover { background: var(--gold-faint); border-color: rgba(201,169,110,0.7); }
 
-  /* Grid */
-  .grid {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 36px 30px;
-    padding: 20px 40px 60px;
-    max-width: 1600px;
-    margin: 0 auto;
-  }
+/* Modal */
+.verse-modal-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(0,0,20,0.75); backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+}
+.verse-modal-overlay.visible { opacity: 1; pointer-events: auto; }
+.verse-modal {
+  position: relative; max-width: 560px; width: 100%;
+  max-height: calc(100dvh - 32px); display: flex; flex-direction: column;
+  background: rgba(0,0,45,0.98); border: 1px solid rgba(201,169,110,0.5);
+  border-radius: 24px; box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(201,169,110,0.12);
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s ease;
+  opacity: 0; overflow: hidden;
+}
+.verse-modal-overlay.visible .verse-modal { transform: translateY(0) scale(1); opacity: 1; }
+.verse-modal-header { flex-shrink: 0; padding: 44px 48px 0; position: relative; }
+.verse-modal-body {
+  flex: 1; overflow-y: auto; padding: 18px 48px 40px;
+  -webkit-overflow-scrolling: touch;
+}
+.verse-modal-body::-webkit-scrollbar { width: 4px; }
+.verse-modal-body::-webkit-scrollbar-track { background: transparent; }
+.verse-modal-body::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.3); border-radius: 2px; }
+.verse-modal-close {
+  position: absolute; top: 18px; right: 22px; background: none; border: none;
+  color: rgba(255,255,255,0.35); font-size: 2rem; line-height: 1; cursor: pointer;
+  transition: color 0.2s; font-family: 'Cormorant Garamond', serif; padding: 4px 8px; border-radius: 6px;
+}
+.verse-modal-close:hover { color: var(--gold); }
+.verse-modal-ref {
+  font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 0.18em;
+  color: var(--gold); margin-bottom: 18px; display: block; text-transform: uppercase;
+}
+.verse-modal-text {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1.9rem; line-height: 1.7; color: rgba(255,255,255,0.92);
+}
+.verse-modal-loading {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1.5rem; color: rgba(255,255,255,0.3);
+}
 
-  /* Book oval */
-  .book {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-  }
+/* ═══════════════════════════════════════════════════
+   VIEW 1 — ATLAS (ovals by testament)
+═══════════════════════════════════════════════════ */
+.testament-label {
+  position: relative; z-index: 10; text-align: center;
+  font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 0.35em;
+  color: var(--gold); padding: 40px 0 10px; text-transform: uppercase; opacity: 0.8;
+}
+.testament-divider {
+  width: 200px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  margin: 0 auto 10px; opacity: 0.5;
+}
+.atlas-grid {
+  position: relative; z-index: 10; display: flex; flex-wrap: wrap;
+  justify-content: center; gap: 36px 30px;
+  padding: 20px 40px 60px; max-width: 1600px; margin: 0 auto;
+}
+.book {
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; cursor: pointer; user-select: none;
+}
+.book-oval {
+  position: relative; width: 240px; min-height: 130px;
+  border: 1.5px solid var(--white-border); border-radius: 80px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 22px 24px 20px; background: rgba(255,255,255,0.025);
+  transition: border-color 0.35s, background 0.35s, box-shadow 0.35s, transform 0.35s;
+  backdrop-filter: blur(4px); z-index: 2;
+}
+.book-name {
+  font-family: 'Cinzel', serif; font-weight: 500; font-size: 1.44rem;
+  letter-spacing: 0.1em; text-align: center; color: var(--white);
+  transition: color 0.3s; line-height: 1.3;
+}
+.book-theme {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.2rem;
+  color: rgba(201,169,110,0.75); text-align: center; margin-top: 8px;
+  line-height: 1.35; transition: color 0.3s; max-width: 200px;
+}
+.book:hover .book-oval, .book.open .book-oval {
+  border-color: var(--gold); background: var(--gold-faint);
+  box-shadow: 0 0 28px rgba(201,169,110,0.2), inset 0 0 20px rgba(201,169,110,0.05);
+  transform: translateY(-3px);
+}
+.book:hover .book-name, .book.open .book-name { color: var(--gold); }
+.book:hover .book-theme, .book.open .book-theme { color: rgba(201,169,110,0.95); }
 
-  .book-oval {
-    position: relative;
-    width: 240px;
-    min-height: 130px;
-    border: 1.5px solid var(--white-border);
-    border-radius: 80px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 22px 24px 20px;
-    background: rgba(255,255,255,0.025);
-    transition: border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
-    backdrop-filter: blur(4px);
-    z-index: 2;
-  }
+/* ═══════════════════════════════════════════════════
+   VIEW 2 — CANON (categories)
+═══════════════════════════════════════════════════ */
+.canon-wrap {
+  position: relative; z-index: 10;
+  padding: 40px 32px 80px; max-width: 1400px; margin: 0 auto;
+}
+.canon-testament-block { margin-bottom: 64px; }
+.canon-testament-title {
+  font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.4em;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 28px;
+  display: flex; align-items: center; gap: 16px; opacity: 0.85;
+}
+.canon-testament-title::before, .canon-testament-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-border));
+}
+.canon-testament-title::after {
+  background: linear-gradient(to left, transparent, var(--gold-border));
+}
+.canon-categories { display: flex; flex-wrap: wrap; gap: 32px; }
+.canon-category {
+  flex: 1 1 200px; min-width: 180px;
+}
+.canon-cat-title {
+  font-family: 'Cinzel', serif; font-size: 0.68rem; letter-spacing: 0.25em;
+  color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.canon-cat-count {
+  color: var(--gold); opacity: 0.6; margin-left: 4px; font-size: 0.6rem;
+}
+.canon-book-list { display: flex; flex-direction: column; gap: 6px; }
+.canon-book-item {
+  position: relative;
+  font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.75); padding: 9px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03);
+  cursor: pointer; transition: all 0.25s; user-select: none;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.canon-book-item:hover, .canon-book-item.open {
+  border-color: var(--gold); color: var(--gold);
+  background: var(--gold-faint);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  transform: translateX(3px);
+}
+.canon-book-chevron {
+  font-size: 0.6rem; color: rgba(201,169,110,0.4); transition: transform 0.25s;
+  flex-shrink: 0; margin-left: 6px;
+}
+.canon-book-item.open .canon-book-chevron { transform: rotate(90deg); color: var(--gold); }
+/* verse panel for canon view — right-aligned when space */
+.canon-book-item .verse-panel {
+  width: 280px; left: 100%; top: 0;
+  transform: translateX(10px) scaleX(0);
+  transform-origin: left center;
+}
+.canon-book-item.open .verse-panel {
+  transform: translateX(10px) scaleX(1);
+  opacity: 1; pointer-events: auto;
+}
 
-  .book-name {
-    font-family: 'Cinzel', serif;
-    font-weight: 500;
-    font-size: 1.44rem;
-    letter-spacing: 0.1em;
-    text-align: center;
-    color: var(--white);
-    transition: color 0.3s;
-    line-height: 1.3;
-  }
+/* ═══════════════════════════════════════════════════
+   VIEW 3 — THEME MAP
+═══════════════════════════════════════════════════ */
+.theme-wrap {
+  position: relative; z-index: 10;
+  padding: 40px 32px 80px; max-width: 1300px; margin: 0 auto;
+}
+.theme-grid {
+  display: flex; flex-wrap: wrap; gap: 36px; justify-content: center;
+}
+.theme-node {
+  position: relative; width: 320px;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 20px;
+  overflow: visible;
+  background: rgba(255,255,255,0.02);
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+}
+.theme-node:hover {
+  border-color: var(--gold-border); background: rgba(201,169,110,0.04);
+  box-shadow: 0 0 40px rgba(201,169,110,0.08);
+}
+.theme-node-header {
+  padding: 22px 22px 16px; border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.theme-node-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.theme-node-text {}
+.theme-node-title {
+  font-family: 'Cinzel', serif; font-size: 0.9rem; letter-spacing: 0.12em;
+  color: var(--gold); margin-bottom: 5px; text-transform: uppercase;
+}
+.theme-node-desc {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1rem; color: rgba(255,255,255,0.45); line-height: 1.45;
+}
+.theme-book-pills {
+  padding: 14px 18px 18px;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.theme-pill {
+  position: relative;
+  font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.65); padding: 5px 12px; border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03);
+  cursor: pointer; transition: all 0.22s; user-select: none;
+  text-transform: uppercase;
+}
+.theme-pill:hover, .theme-pill.open {
+  border-color: var(--gold); color: var(--gold);
+  background: var(--gold-faint);
+}
+.theme-pill .verse-panel { width: 280px; top: 100%; left: 0; }
 
-  .book-theme {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1.2rem;
-    color: rgba(201,169,110,0.75);
-    text-align: center;
-    margin-top: 8px;
-    line-height: 1.35;
-    transition: color 0.3s;
-    max-width: 200px;
-  }
-
-  /* Hover / open state for oval */
-  .book:hover .book-oval,
-  .book.open .book-oval {
-    border-color: var(--gold);
-    background: rgba(201,169,110,0.08);
-    box-shadow: 0 0 28px rgba(201,169,110,0.2), inset 0 0 20px rgba(201,169,110,0.05);
-    transform: translateY(-3px);
-  }
-
-  .book:hover .book-name,
-  .book.open .book-name { color: var(--gold); }
-  .book:hover .book-theme,
-  .book.open .book-theme { color: rgba(201,169,110,0.95); }
-
-  /* Verse panel (reference list) */
-  .verse-panel {
-    position: absolute;
-    top: calc(100% + 12px);
-    left: 50%;
-    transform: translateX(-50%) scaleY(0);
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════ */
+@media (max-width: 700px) {
+  .nav-views { display: none; }
+  .home-card { width: 260px; }
+  .atlas-grid { gap: 22px 14px; padding: 16px 16px 40px; }
+  .book-oval { width: 200px; min-height: 110px; }
+  .book-name { font-size: 1.2rem; }
+  .book-theme { font-size: 1rem; max-width: 170px; }
+  .verse-panel { width: min(300px, calc(100vw - 32px)); }
+  .canon-book-item .verse-panel {
+    left: 0; top: 100%; transform: translateX(0) scaleY(0) !important;
     transform-origin: top center;
-    width: 300px;
-    background: #00051e;
-    border: 1px solid rgba(201,169,110,0.4);
-    border-radius: 18px;
-    padding: 18px 20px;
-    z-index: 200;
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 40px rgba(201,169,110,0.1);
+    width: min(300px, calc(100vw - 32px));
   }
-
-  .book.open .verse-panel {
-    opacity: 1;
-    transform: translateX(-50%) scaleY(1);
-    pointer-events: auto;
+  .canon-book-item.open .verse-panel {
+    transform: translateX(0) scaleY(1) !important;
   }
-
-  .verse-panel-title {
-    font-family: 'Cinzel', serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.2em;
-    color: var(--gold);
-    text-align: center;
-    margin-bottom: 12px;
-    opacity: 0.8;
-    text-transform: uppercase;
-  }
-
-  .verse-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .verse-item {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.7rem;
-    color: rgba(255,255,255,0.85);
-    padding: 7px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    line-height: 1.3;
-    letter-spacing: 0.01em;
-  }
-
-  .verse-item:hover {
-    background: rgba(201,169,110,0.12);
-    color: var(--gold);
-  }
-
-  .verse-item.hidden-verse {
-    display: none;
-  }
-
-  .verse-more-btn {
-    margin-top: 8px;
-    width: 100%;
-    background: none;
-    border: 1px solid rgba(201,169,110,0.3);
-    border-radius: 8px;
-    color: var(--gold);
-    font-family: 'Cinzel', serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.15em;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-    text-transform: uppercase;
-  }
-  .verse-more-btn:hover {
-    background: rgba(201,169,110,0.1);
-    border-color: rgba(201,169,110,0.6);
-  }
-
-  /* ── VERSE MODAL ── */
-  .verse-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(0,0,20,0.7);
-    backdrop-filter: blur(6px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-  }
-  .verse-modal-overlay.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .verse-modal {
-    position: relative;
-    max-width: 560px;
-    width: 100%;
-    max-height: calc(100dvh - 32px);
-    display: flex;
-    flex-direction: column;
-    background: rgba(0, 0, 45, 0.98);
-    border: 1px solid rgba(201,169,110,0.5);
-    border-radius: 24px;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(201,169,110,0.12);
-    transform: translateY(16px) scale(0.97);
-    transition: transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.25s ease;
-    opacity: 0;
-    overflow: hidden;
-  }
-
-  .verse-modal-header {
-    flex-shrink: 0;
-    padding: 44px 48px 0;
-    position: relative;
-  }
-
-  .verse-modal-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 18px 48px 40px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .verse-modal-body::-webkit-scrollbar { width: 4px; }
-  .verse-modal-body::-webkit-scrollbar-track { background: transparent; }
-  .verse-modal-body::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.3); border-radius: 2px; }
-  .verse-modal-overlay.visible .verse-modal {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-
-  .verse-modal-close {
-    position: absolute;
-    top: 18px;
-    right: 22px;
-    background: none;
-    border: none;
-    color: rgba(255,255,255,0.35);
-    font-size: 2rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: color 0.2s;
-    font-family: 'Cormorant Garamond', serif;
-    padding: 4px 8px;
-    border-radius: 6px;
-  }
-  .verse-modal-close:hover { color: var(--gold); }
-
-  .verse-modal-ref {
-    font-family: 'Cinzel', serif;
-    font-size: 1.3rem;
-    letter-spacing: 0.18em;
-    color: var(--gold);
-    margin-bottom: 18px;
-    display: block;
-    text-transform: uppercase;
-  }
-
-  .verse-modal-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1.9rem;
-    line-height: 1.7;
-    color: rgba(255,255,255,0.92);
-  }
-
-  .verse-modal-loading {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1.5rem;
-    color: rgba(255,255,255,0.3);
-  }
-
-  footer {
-    position: relative;
-    z-index: 10;
-    text-align: center;
-    padding: 30px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1.7rem;
-    color: rgba(255,255,255,0.25);
-    letter-spacing: 0.05em;
-  }
-
-  @media (max-width: 600px) {
-    .grid { gap: 22px 16px; padding: 16px 16px 40px; }
-    .book-oval { width: 200px; min-height: 110px; }
-    .book-name { font-size: 1.2rem; }
-    .book-theme { font-size: 1rem; max-width: 170px; }
-    .verse-panel { width: min(300px, calc(100vw - 32px)); }
-    .verse-modal-header { padding: 34px 26px 0; }
-    .verse-modal-body { padding: 14px 26px 28px; }
-    .verse-modal-text { font-size: 1.55rem; }
-    .verse-modal-close { top: 14px; right: 16px; }
-  }
+  .theme-pill .verse-panel { left: 0; }
+  .theme-node { width: 100%; }
+  .canon-wrap, .theme-wrap { padding: 24px 16px 60px; }
+  .verse-modal-header { padding: 34px 26px 0; }
+  .verse-modal-body { padding: 14px 26px 28px; }
+  .verse-modal-text { font-size: 1.55rem; }
+  .verse-modal-close { top: 14px; right: 16px; }
+}
 </style>
 </head>
 <body>
 
 <div class="stars" id="stars"></div>
 
-<header>
-  <h1>John's Keystone Bible Verses</h1>
-  <p>A personal scripture atlas</p>
-</header>
+<!-- NAV (hidden on home) -->
+<nav class="nav" id="nav" style="display:none">
+  <button class="nav-home" id="navHome">Scripture Atlas</button>
+  <span class="nav-sep">›</span>
+  <span class="nav-current" id="navCurrent"></span>
+  <div class="nav-views">
+    <button class="nav-view-btn" data-view="atlas">Atlas</button>
+    <button class="nav-view-btn" data-view="canon">Canon</button>
+    <button class="nav-view-btn" data-view="themes">Themes</button>
+  </div>
+</nav>
 
-<div id="app"></div>
+<!-- PAGE: HOME -->
+<div class="page active" id="page-home">
+  <div class="home-wrap">
+    <h1 class="home-title">John's Scripture Atlas</h1>
+    <p class="home-sub">A personal scripture atlas</p>
+    <div class="home-cards">
+      <div class="home-card" data-goto="atlas">
+        <div class="home-card-icon">✦</div>
+        <div class="home-card-title">Atlas View</div>
+        <div class="home-card-desc">Every book as a constellation — browse all 66 by testament and hover to explore</div>
+      </div>
+      <div class="home-card" data-goto="canon">
+        <div class="home-card-icon">📜</div>
+        <div class="home-card-title">Canon View</div>
+        <div class="home-card-desc">Books arranged by their canonical category — Law, History, Poetry, Prophets, Gospels, and more</div>
+      </div>
+      <div class="home-card" data-goto="themes">
+        <div class="home-card-icon">🌿</div>
+        <div class="home-card-title">Theme Map</div>
+        <div class="home-card-desc">Major threads of scripture — Creation, Covenant, Redemption, Kingdom — mapped to the books that carry them</div>
+      </div>
+    </div>
+    <div class="home-footer">Curated by John Carreker</div>
+  </div>
+</div>
 
-<!-- Verse modal -->
+<!-- PAGE: ATLAS -->
+<div class="page" id="page-atlas">
+  <div class="section-header">
+    <h2>Atlas View</h2>
+    <p>A personal scripture atlas</p>
+  </div>
+  <div id="atlas-app"></div>
+</div>
+
+<!-- PAGE: CANON -->
+<div class="page" id="page-canon">
+  <div class="section-header">
+    <h2>Canon View</h2>
+    <p>Books by their place in the biblical story</p>
+  </div>
+  <div class="canon-wrap" id="canon-app"></div>
+</div>
+
+<!-- PAGE: THEMES -->
+<div class="page" id="page-themes">
+  <div class="section-header">
+    <h2>Theme Map</h2>
+    <p>The great threads woven through all of Scripture</p>
+  </div>
+  <div class="theme-wrap" id="themes-app"></div>
+</div>
+
+<!-- SHARED VERSE MODAL -->
 <div class="verse-modal-overlay" id="verseModal">
-  <div class="verse-modal" id="verseModalBox">
+  <div class="verse-modal">
     <div class="verse-modal-header">
       <button class="verse-modal-close" id="verseModalClose" aria-label="Close">✕</button>
       <span class="verse-modal-ref" id="verseModalRef"></span>
@@ -404,83 +516,174 @@
   </div>
 </div>
 
-<footer>
-  Curated by John Carreker
-</footer>
-
 <script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
 const BOOKS = [
-  { name: "Genesis", testament: "OT", theme: "God brings order from chaos, creating humanity to steward His world", verses: ["1:27","3:15"] },
-  { name: "Exodus", testament: "OT", theme: "God redeems His people and calls them into covenant", verses: ["6:6-7","19:5-6"] },
-  { name: "Leviticus", testament: "OT", theme: "Holiness is God's nature — and His call to His people", verses: ["11:44","26:13"] },
-  { name: "Numbers", testament: "OT", theme: "Faithfulness in the wilderness; sin finds its way out", verses: ["6:24","32:23"] },
-  { name: "Deuteronomy", testament: "OT", theme: "Love God wholly; let His word shape every part of life", verses: ["6:4-9","30:6"] },
-  { name: "Joshua", testament: "OT", theme: "Courage rooted in God's presence claims the promised land", verses: ["1:8-9","14:12-13","24:15"] },
-  { name: "Judges", testament: "OT", theme: "Without God's word, each generation must rediscover Him", verses: ["2:10"] },
-  { name: "Ruth", testament: "OT", theme: "Loyal love follows covenant across every boundary", verses: ["1:16"] },
-  { name: "1 Samuel", testament: "OT", theme: "God looks at the heart, not outward appearances", verses: ["16:7"] },
-  { name: "2 Samuel", testament: "OT", theme: "God's covenant with David points toward an eternal King", verses: ["7:9-17","22:1-31"] },
-  { name: "1 Kings", testament: "OT", theme: "Be strong; walk in God's ways as you lead", verses: ["2:2"] },
-  { name: "2 Kings", testament: "OT", theme: "Even in darkness, prayer reaches the God who rules nations", verses: ["19:15-19"] },
-  { name: "1 Chronicles", testament: "OT", theme: "God's kingdom and glory belong to Him alone", verses: ["17:11-14","29:11","28:9"] },
-  { name: "2 Chronicles", testament: "OT", theme: "Humble repentance draws God's searching, healing gaze", verses: ["7:14","16:9","25:4"] },
-  { name: "Ezra", testament: "OT", theme: "God's grace revives worship and restores His people", verses: ["7:27-28","9:8"] },
-  { name: "Nehemiah", testament: "OT", theme: "God is great and merciful — worthy of all praise", verses: ["9:5","9:17"] },
-  { name: "Esther", testament: "OT", theme: "Providence places people in exactly the right moment", verses: ["4:16"] },
-  { name: "Job", testament: "OT", theme: "God gives and takes — His hand sustains through every loss", verses: ["1:21-22","10:12"] },
-  { name: "Psalms", testament: "OT", theme: "The full range of human emotion meets an inexhaustible God", verses: ["1:1-3","9:10","16:11","19:7-9","27:14","37:1-7","51:1-6","71:20","86:11","90:17","121:1","145:8-9"] },
-  { name: "Proverbs", testament: "OT", theme: "Wisdom begins in reverence and shapes every word and path", verses: ["1:7","2:1-9","3:5-6","4:23-26","5:18-19","9:10-11","11:1-6","13:12","15:22","16:1-6","20:5-8","24:5-6"] },
-  { name: "Ecclesiastes", testament: "OT", theme: "Life under the sun finds meaning only in God", verses: ["2:21-26","3:1-8","3:22","5:1-7","7:14","10:10"] },
-  { name: "Song of Solomon", testament: "OT", theme: "Love in its fullness reflects God's own devotion", verses: ["6:1-10"] },
-  { name: "Isaiah", testament: "OT", theme: "God comforts, strengthens, and saves through His suffering servant", verses: ["9:6","12:2","26:3-4","30:18","38:17","41:10","42:6","43:1","45:23","48:18","51:6","66:15"] },
-  { name: "Jeremiah", testament: "OT", theme: "God's plans are for flourishing — His love is everlasting", verses: ["9:23-24","14:9","17:7-10","23:5","24:7","29:11-14","31:3-4","31:33-34"] },
-  { name: "Lamentations", testament: "OT", theme: "In the depths of grief, God's mercies are new every morning", verses: ["2:17","3:21-25","3:58"] },
-  { name: "Ezekiel", testament: "OT", theme: "God transforms the heart of stone into a heart of flesh", verses: ["11:19-20","16:60","18:20","20:12","28:25","34:15-16","36:26-27","48:35"] },
-  { name: "Daniel", testament: "OT", theme: "God's wisdom and sovereign kingdom outlast every empire", verses: ["2:20-22","4:34","9:25-26","12:7-12"] },
-  { name: "Hosea", testament: "OT", theme: "God desires steadfast love and knowledge more than ritual", verses: ["4:6","6:6","10:12","13:4","14:9"] },
-  { name: "Joel", testament: "OT", theme: "Return to God with all your heart — He pours out His Spirit", verses: ["2:12-13","2:32"] },
-  { name: "Amos", testament: "OT", theme: "God reveals His plans; let justice roll like a river", verses: ["3:7","5:15"] },
-  { name: "Obadiah", testament: "OT", theme: "The kingdom shall be the Lord's", verses: ["1:21"] },
-  { name: "Jonah", testament: "OT", theme: "Salvation belongs to the Lord — even for the reluctant messenger", verses: ["2:6-9","4:4"] },
-  { name: "Micah", testament: "OT", theme: "Act justly, love mercy, walk humbly with your God", verses: ["4:2","5:2","6:8","7:18"] },
-  { name: "Nahum", testament: "OT", theme: "God is good — a stronghold in every storm", verses: ["1:7"] },
-  { name: "Habakkuk", testament: "OT", theme: "The just shall live by faith, even when God seems silent", verses: ["2:4","3:18-19"] },
-  { name: "Zephaniah", testament: "OT", theme: "Seek the Lord in humility; He delights over you with singing", verses: ["2:3","3:5"] },
-  { name: "Haggai", testament: "OT", theme: "Consider your ways — give God your best", verses: ["1:5-6","1:8","2:4-5"] },
-  { name: "Zechariah", testament: "OT", theme: "God's king comes humbly, bringing peace and restoration", verses: ["8:8","8:16-17","9:9","12:3"] },
-  { name: "Malachi", testament: "OT", theme: "Honor God with your whole life — He is faithful to His covenant", verses: ["2:15-16","3:10"] },
-  { name: "Matthew", testament: "NT", theme: "Jesus fulfills the law and announces the Kingdom of Heaven", verses: ["5:2-12","5:16","6:9-13","6:22-24","7:12","7:24-25","16:24-25","22:36-39","25:21"] },
-  { name: "Mark", testament: "NT", theme: "Jesus, the suffering servant, acts with urgent authority", verses: ["1:8","3:28-29","7:19-20","8:35-38","10:15","10:43-45","12:30-31","14:38","16:6"] },
-  { name: "Luke", testament: "NT", theme: "Jesus seeks the lost and lifts the lowly with God's grace", verses: ["1:37","3:22","6:45","9:23","10:27","11:9-10","12:8-9","12:25-26","12:48","16:13","21:27-28"] },
-  { name: "John", testament: "NT", theme: "Jesus is the Word made flesh — the way, truth, and life", verses: ["1:1-5","1:11-14","3:3","3:16","3:21","3:27","5:24","6:35-44","8:12","8:31-32","10:10","14:6"] },
-  { name: "Acts", testament: "NT", theme: "The Spirit empowers the church to witness to all nations", verses: ["1:7-8","2:4","2:38","4:11-12","14:22"] },
-  { name: "Romans", testament: "NT", theme: "Grace transforms the sinner into a living sacrifice for God", verses: ["1:16-17","2:13-15","3:23","6:23","5:8-9","10:9-10","8:1","5:3-5","6:12-14","7:6","11:33","12:1-2"] },
-  { name: "1 Corinthians", testament: "NT", theme: "Love is the greatest gift; let all things be done in order", verses: ["1:10","2:11-12","3:16","6:19-20","7:17","10:13","11:3","13:4-13","14:33-40","16:13-14"] },
-  { name: "2 Corinthians", testament: "NT", theme: "God's strength is perfected in weakness and suffering", verses: ["1:3-4","2:15","4:16-18","5:17-22","8:9","9:6-8","10:3-5","11:14-15","12:9"] },
-  { name: "Galatians", testament: "NT", theme: "Freedom in Christ produces the fruit of the Spirit", verses: ["2:16","2:20","5:5","5:22-23","6:7-9"] },
-  { name: "Ephesians", testament: "NT", theme: "Chosen in grace, built up in love, armored for the battle", verses: ["1:4-7","1:13-14","2:8-9","3:16-20","4:29","5:25-26","6:10-18"] },
-  { name: "Philippians", testament: "NT", theme: "Rejoice always — God's peace guards the surrendered heart", verses: ["1:6","1:27","3:9-10","3:13-14","4:6-8","4:13-19"] },
-  { name: "Colossians", testament: "NT", theme: "Christ is supreme — set your mind on things above", verses: ["1:9-10","1:15-20","3:1-4","3:23-24","3:16-17"] },
-  { name: "1 Thessalonians", testament: "NT", theme: "Live holy; await the Lord's return with sober hope", verses: ["4:3-4","4:16-18","5:8","5:18-24"] },
-  { name: "2 Thessalonians", testament: "NT", theme: "Stand firm in truth; God is faithful to establish you", verses: ["1:7-9","3:3","3:10","3:13"] },
-  { name: "1 Timothy", testament: "NT", theme: "Pursue godliness with discipline and a pure conscience", verses: ["1:5","1:18-19","3:5","4:4-5","4:7-8","6:6-7","6:11-12"] },
-  { name: "2 Timothy", testament: "NT", theme: "Scripture equips the man of God for every good work", verses: ["1:7","2:15","2:19","2:22","3:16","4:16"] },
-  { name: "Titus", testament: "NT", theme: "God's grace trains us to live godly lives in this age", verses: ["1:15","2:11-13","3:4-7"] },
-  { name: "Philemon", testament: "NT", theme: "The gospel reconciles people across every social divide", verses: ["1:6-7"] },
-  { name: "Hebrews", testament: "NT", theme: "Jesus is our great high priest — run with endurance toward him", verses: ["1:3","2:17","3:13-14","4:12-13","4:15-16","6:7","6:17-20","10:22-25","10:35-36","11:1-6","12:1-2","12:14-17"] },
-  { name: "James", testament: "NT", theme: "Faith without works is dead — wisdom comes from above", verses: ["1:2-5","1:12","1:14-19","2:14","2:26","4:1","4:3-4","4:8","4:14-17","5:12"] },
-  { name: "1 Peter", testament: "NT", theme: "Suffering refines — be humble and alert in holy living", verses: ["1:3","1:13","2:1","3:7-8","3:15","4:12-13","5:5-8"] },
-  { name: "2 Peter", testament: "NT", theme: "Grow in virtue; Scripture comes from God, not human will", verses: ["1:5-8","1:21","2:9","3:7-8","3:15","4:12-13","5:5-8"] },
-  { name: "1 John", testament: "NT", theme: "God is love — abide in Him; walk in light and truth", verses: ["1:5-9","3:8","3:19","4:4","4:18","5:14-15"] },
-  { name: "2 John", testament: "NT", theme: "Walk in truth and love; abide in Christ's teaching", verses: ["1:2-3","1:8"] },
-  { name: "3 John", testament: "NT", theme: "Imitate what is good — it is from God", verses: ["1:11"] },
-  { name: "Jude", testament: "NT", theme: "God keeps the faithful — contend earnestly for the faith", verses: ["1:20-21","1:24-25"] },
-  { name: "Revelation", testament: "NT", theme: "The Lamb who was slain reigns — all things are made new", verses: ["1:8","2:5","3:19-20","5:9-12","7:17","12:10-11","15:3-4","17:14","19:9","20:15","21:4-5","22:20"] },
+  { name:"Genesis",     testament:"OT", theme:"God brings order from chaos, creating humanity to steward His world",         verses:["1:27","3:15"] },
+  { name:"Exodus",      testament:"OT", theme:"God redeems His people and calls them into covenant",                         verses:["6:6-7","19:5-6"] },
+  { name:"Leviticus",   testament:"OT", theme:"Holiness is God's nature — and His call to His people",                       verses:["11:44","26:13"] },
+  { name:"Numbers",     testament:"OT", theme:"Faithfulness in the wilderness; sin finds its way out",                       verses:["6:24","32:23"] },
+  { name:"Deuteronomy", testament:"OT", theme:"Love God wholly; let His word shape every part of life",                     verses:["6:4-9","30:6"] },
+  { name:"Joshua",      testament:"OT", theme:"Courage rooted in God's presence claims the promised land",                  verses:["1:8-9","14:12-13","24:15"] },
+  { name:"Judges",      testament:"OT", theme:"Without God's word, each generation must rediscover Him",                    verses:["2:10"] },
+  { name:"Ruth",        testament:"OT", theme:"Loyal love follows covenant across every boundary",                          verses:["1:16"] },
+  { name:"1 Samuel",    testament:"OT", theme:"God looks at the heart, not outward appearances",                            verses:["16:7"] },
+  { name:"2 Samuel",    testament:"OT", theme:"God's covenant with David points toward an eternal King",                    verses:["7:9-17","22:1-31"] },
+  { name:"1 Kings",     testament:"OT", theme:"Be strong; walk in God's ways as you lead",                                  verses:["2:2"] },
+  { name:"2 Kings",     testament:"OT", theme:"Even in darkness, prayer reaches the God who rules nations",                 verses:["19:15-19"] },
+  { name:"1 Chronicles",testament:"OT", theme:"God's kingdom and glory belong to Him alone",                                verses:["17:11-14","29:11","28:9"] },
+  { name:"2 Chronicles",testament:"OT", theme:"Humble repentance draws God's searching, healing gaze",                     verses:["7:14","16:9","25:4"] },
+  { name:"Ezra",        testament:"OT", theme:"God's grace revives worship and restores His people",                        verses:["7:27-28","9:8"] },
+  { name:"Nehemiah",    testament:"OT", theme:"God is great and merciful — worthy of all praise",                          verses:["9:5","9:17"] },
+  { name:"Esther",      testament:"OT", theme:"Providence places people in exactly the right moment",                      verses:["4:16"] },
+  { name:"Job",         testament:"OT", theme:"God gives and takes — His hand sustains through every loss",                 verses:["1:21-22","10:12"] },
+  { name:"Psalms",      testament:"OT", theme:"The full range of human emotion meets an inexhaustible God",                 verses:["1:1-3","9:10","16:11","19:7-9","27:14","37:1-7","51:1-6","71:20","86:11","90:17","121:1","145:8-9"] },
+  { name:"Proverbs",    testament:"OT", theme:"Wisdom begins in reverence and shapes every word and path",                  verses:["1:7","2:1-9","3:5-6","4:23-26","5:18-19","9:10-11","11:1-6","13:12","15:22","16:1-6","20:5-8","24:5-6"] },
+  { name:"Ecclesiastes",testament:"OT", theme:"Life under the sun finds meaning only in God",                               verses:["2:21-26","3:1-8","3:22","5:1-7","7:14","10:10"] },
+  { name:"Song of Solomon",testament:"OT",theme:"Love in its fullness reflects God's own devotion",                        verses:["6:1-10"] },
+  { name:"Isaiah",      testament:"OT", theme:"God comforts, strengthens, and saves through His suffering servant",         verses:["9:6","12:2","26:3-4","30:18","38:17","41:10","42:6","43:1","45:23","48:18","51:6","66:15"] },
+  { name:"Jeremiah",    testament:"OT", theme:"God's plans are for flourishing — His love is everlasting",                  verses:["9:23-24","14:9","17:7-10","23:5","24:7","29:11-14","31:3-4","31:33-34"] },
+  { name:"Lamentations",testament:"OT", theme:"In the depths of grief, God's mercies are new every morning",               verses:["2:17","3:21-25","3:58"] },
+  { name:"Ezekiel",     testament:"OT", theme:"God transforms the heart of stone into a heart of flesh",                   verses:["11:19-20","16:60","18:20","20:12","28:25","34:15-16","36:26-27","48:35"] },
+  { name:"Daniel",      testament:"OT", theme:"God's wisdom and sovereign kingdom outlast every empire",                   verses:["2:20-22","4:34","9:25-26","12:7-12"] },
+  { name:"Hosea",       testament:"OT", theme:"God desires steadfast love and knowledge more than ritual",                  verses:["4:6","6:6","10:12","13:4","14:9"] },
+  { name:"Joel",        testament:"OT", theme:"Return to God with all your heart — He pours out His Spirit",               verses:["2:12-13","2:32"] },
+  { name:"Amos",        testament:"OT", theme:"God reveals His plans; let justice roll like a river",                      verses:["3:7","5:15"] },
+  { name:"Obadiah",     testament:"OT", theme:"The kingdom shall be the Lord's",                                           verses:["1:21"] },
+  { name:"Jonah",       testament:"OT", theme:"Salvation belongs to the Lord — even for the reluctant messenger",          verses:["2:6-9","4:4"] },
+  { name:"Micah",       testament:"OT", theme:"Act justly, love mercy, walk humbly with your God",                        verses:["4:2","5:2","6:8","7:18"] },
+  { name:"Nahum",       testament:"OT", theme:"God is good — a stronghold in every storm",                                 verses:["1:7"] },
+  { name:"Habakkuk",    testament:"OT", theme:"The just shall live by faith, even when God seems silent",                  verses:["2:4","3:18-19"] },
+  { name:"Zephaniah",   testament:"OT", theme:"Seek the Lord in humility; He delights over you with singing",              verses:["2:3","3:5"] },
+  { name:"Haggai",      testament:"OT", theme:"Consider your ways — give God your best",                                   verses:["1:5-6","1:8","2:4-5"] },
+  { name:"Zechariah",   testament:"OT", theme:"God's king comes humbly, bringing peace and restoration",                   verses:["8:8","8:16-17","9:9","12:3"] },
+  { name:"Malachi",     testament:"OT", theme:"Honor God with your whole life — He is faithful to His covenant",           verses:["2:15-16","3:10"] },
+  { name:"Matthew",     testament:"NT", theme:"Jesus fulfills the law and announces the Kingdom of Heaven",                verses:["5:2-12","5:16","6:9-13","6:22-24","7:12","7:24-25","16:24-25","22:36-39","25:21"] },
+  { name:"Mark",        testament:"NT", theme:"Jesus, the suffering servant, acts with urgent authority",                  verses:["1:8","3:28-29","7:19-20","8:35-38","10:15","10:43-45","12:30-31","14:38","16:6"] },
+  { name:"Luke",        testament:"NT", theme:"Jesus seeks the lost and lifts the lowly with God's grace",                 verses:["1:37","3:22","6:45","9:23","10:27","11:9-10","12:8-9","12:25-26","12:48","16:13","21:27-28"] },
+  { name:"John",        testament:"NT", theme:"Jesus is the Word made flesh — the way, truth, and life",                   verses:["1:1-5","1:11-14","3:3","3:16","3:21","3:27","5:24","6:35-44","8:12","8:31-32","10:10","14:6"] },
+  { name:"Acts",        testament:"NT", theme:"The Spirit empowers the church to witness to all nations",                  verses:["1:7-8","2:4","2:38","4:11-12","14:22"] },
+  { name:"Romans",      testament:"NT", theme:"Grace transforms the sinner into a living sacrifice for God",               verses:["1:16-17","2:13-15","3:23","6:23","5:8-9","10:9-10","8:1","5:3-5","6:12-14","7:6","11:33","12:1-2"] },
+  { name:"1 Corinthians",testament:"NT",theme:"Love is the greatest gift; let all things be done in order",               verses:["1:10","2:11-12","3:16","6:19-20","7:17","10:13","11:3","13:4-13","14:33-40","16:13-14"] },
+  { name:"2 Corinthians",testament:"NT",theme:"God's strength is perfected in weakness and suffering",                    verses:["1:3-4","2:15","4:16-18","5:17-22","8:9","9:6-8","10:3-5","11:14-15","12:9"] },
+  { name:"Galatians",   testament:"NT", theme:"Freedom in Christ produces the fruit of the Spirit",                       verses:["2:16","2:20","5:5","5:22-23","6:7-9"] },
+  { name:"Ephesians",   testament:"NT", theme:"Chosen in grace, built up in love, armored for the battle",                verses:["1:4-7","1:13-14","2:8-9","3:16-20","4:29","5:25-26","6:10-18"] },
+  { name:"Philippians", testament:"NT", theme:"Rejoice always — God's peace guards the surrendered heart",                 verses:["1:6","1:27","3:9-10","3:13-14","4:6-8","4:13-19"] },
+  { name:"Colossians",  testament:"NT", theme:"Christ is supreme — set your mind on things above",                        verses:["1:9-10","1:15-20","3:1-4","3:23-24","3:16-17"] },
+  { name:"1 Thessalonians",testament:"NT",theme:"Live holy; await the Lord's return with sober hope",                     verses:["4:3-4","4:16-18","5:8","5:18-24"] },
+  { name:"2 Thessalonians",testament:"NT",theme:"Stand firm in truth; God is faithful to establish you",                  verses:["1:7-9","3:3","3:10","3:13"] },
+  { name:"1 Timothy",   testament:"NT", theme:"Pursue godliness with discipline and a pure conscience",                   verses:["1:5","1:18-19","3:5","4:4-5","4:7-8","6:6-7","6:11-12"] },
+  { name:"2 Timothy",   testament:"NT", theme:"Scripture equips the man of God for every good work",                      verses:["1:7","2:15","2:19","2:22","3:16","4:16"] },
+  { name:"Titus",       testament:"NT", theme:"God's grace trains us to live godly lives in this age",                    verses:["1:15","2:11-13","3:4-7"] },
+  { name:"Philemon",    testament:"NT", theme:"The gospel reconciles people across every social divide",                   verses:["1:6-7"] },
+  { name:"Hebrews",     testament:"NT", theme:"Jesus is our great high priest — run with endurance toward him",            verses:["1:3","2:17","3:13-14","4:12-13","4:15-16","6:7","6:17-20","10:22-25","10:35-36","11:1-6","12:1-2","12:14-17"] },
+  { name:"James",       testament:"NT", theme:"Faith without works is dead — wisdom comes from above",                    verses:["1:2-5","1:12","1:14-19","2:14","2:26","4:1","4:3-4","4:8","4:14-17","5:12"] },
+  { name:"1 Peter",     testament:"NT", theme:"Suffering refines — be humble and alert in holy living",                   verses:["1:3","1:13","2:1","3:7-8","3:15","4:12-13","5:5-8"] },
+  { name:"2 Peter",     testament:"NT", theme:"Grow in virtue; Scripture comes from God, not human will",                 verses:["1:5-8","1:21","2:9","3:7-8","3:15","4:12-13","5:5-8"] },
+  { name:"1 John",      testament:"NT", theme:"God is love — abide in Him; walk in light and truth",                      verses:["1:5-9","3:8","3:19","4:4","4:18","5:14-15"] },
+  { name:"2 John",      testament:"NT", theme:"Walk in truth and love; abide in Christ's teaching",                       verses:["1:2-3","1:8"] },
+  { name:"3 John",      testament:"NT", theme:"Imitate what is good — it is from God",                                    verses:["1:11"] },
+  { name:"Jude",        testament:"NT", theme:"God keeps the faithful — contend earnestly for the faith",                 verses:["1:20-21","1:24-25"] },
+  { name:"Revelation",  testament:"NT", theme:"The Lamb who was slain reigns — all things are made new",                  verses:["1:8","2:5","3:19-20","5:9-12","7:17","12:10-11","15:3-4","17:14","19:9","20:15","21:4-5","22:20"] },
 ];
 
-// ─── VERSE TEXT CACHE ─────────────────────────────────────────────────────────
-const verseCache = {};
+const BOOK_MAP = Object.fromEntries(BOOKS.map(b => [b.name, b]));
 
+// CANON CATEGORIES
+const CANON = [
+  {
+    testament: "Old Testament",
+    categories: [
+      { title: "Law", books: ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy"] },
+      { title: "History", books: ["Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther"] },
+      { title: "Poetry & Wisdom", books: ["Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon"] },
+      { title: "Major Prophets", books: ["Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel"] },
+      { title: "Minor Prophets", books: ["Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi"] },
+    ]
+  },
+  {
+    testament: "New Testament",
+    categories: [
+      { title: "Gospels", books: ["Matthew","Mark","Luke","John"] },
+      { title: "History", books: ["Acts"] },
+      { title: "Paul's Letters to Churches", books: ["Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians"] },
+      { title: "Paul's Letters to Friends", books: ["1 Timothy","2 Timothy","Titus","Philemon"] },
+      { title: "General Letters", books: ["Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude"] },
+      { title: "Prophecy", books: ["Revelation"] },
+    ]
+  }
+];
+
+// THEMES
+const THEMES = [
+  {
+    icon: "🌅", title: "Creation & Humanity",
+    desc: "God's design for the world and our place in it",
+    books: ["Genesis","Psalms","Proverbs","Ecclesiastes","Isaiah","John","Romans","Colossians"]
+  },
+  {
+    icon: "🤝", title: "Covenant",
+    desc: "God's binding promises from Eden to the new creation",
+    books: ["Genesis","Exodus","Deuteronomy","Jeremiah","Ezekiel","Matthew","Hebrews"]
+  },
+  {
+    icon: "🔓", title: "Redemption & Salvation",
+    desc: "How God rescues His people from bondage and sin",
+    books: ["Exodus","Isaiah","Luke","John","Romans","Galatians","Ephesians","Titus"]
+  },
+  {
+    icon: "👑", title: "Kingdom of God",
+    desc: "God's reign advancing through history toward its fullness",
+    books: ["2 Samuel","Psalms","Daniel","Matthew","Mark","Luke","Acts","Revelation"]
+  },
+  {
+    icon: "🕊️", title: "Holiness & Worship",
+    desc: "What it means to be set apart and to honor God rightly",
+    books: ["Leviticus","Psalms","Isaiah","Ezekiel","Malachi","1 Corinthians","Hebrews","1 Peter"]
+  },
+  {
+    icon: "⚖️", title: "Justice & Mercy",
+    desc: "God's character expressed in how He and we treat the vulnerable",
+    books: ["Amos","Micah","Isaiah","Jeremiah","Luke","James","Romans"]
+  },
+  {
+    icon: "📖", title: "Wisdom & The Word",
+    desc: "God's wisdom given to guide a well-lived life",
+    books: ["Proverbs","Ecclesiastes","Psalms","Job","2 Timothy","James","Hebrews"]
+  },
+  {
+    icon: "💔", title: "Suffering & Hope",
+    desc: "Faith forged through trials and the certainty of God's future",
+    books: ["Job","Lamentations","Psalms","Habakkuk","Romans","2 Corinthians","1 Peter","Revelation"]
+  },
+  {
+    icon: "✉️", title: "The Holy Spirit",
+    desc: "God's presence dwelling in His people, transforming from within",
+    books: ["Ezekiel","Joel","Acts","Romans","Galatians","Ephesians","1 Corinthians"]
+  },
+  {
+    icon: "🌍", title: "Mission & Witness",
+    desc: "God's heart for all nations and the church sent into the world",
+    books: ["Isaiah","Jonah","Matthew","Mark","Luke","Acts","Romans","Revelation"]
+  },
+  {
+    icon: "🙏", title: "Prayer & Faith",
+    desc: "Trusting God and seeking His face in every season",
+    books: ["Psalms","Daniel","Matthew","Luke","Philippians","James","Hebrews","1 John"]
+  },
+  {
+    icon: "🌿", title: "New Creation",
+    desc: "The restoration of all things under the reign of Christ",
+    books: ["Isaiah","Ezekiel","Romans","2 Corinthians","Colossians","Revelation"]
+  },
+];
+
+/* ═══════════════════════════════════════
+   VERSE FETCH
+═══════════════════════════════════════ */
+const verseCache = {};
 async function fetchVerseText(book, verse) {
   const key = `${book} ${verse}`;
   if (verseCache[key]) return verseCache[key];
@@ -498,79 +701,138 @@ async function fetchVerseText(book, verse) {
   }
 }
 
-// ─── STAR FIELD ──────────────────────────────────────────────────────────────
-function buildStars() {
-  const container = document.getElementById('stars');
-  for (let i = 0; i < 180; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    const size = Math.random() * 1.8 + 0.4;
-    s.style.cssText = `
-      width:${size}px; height:${size}px;
-      top:${Math.random()*100}%;
-      left:${Math.random()*100}%;
-      --d:${(Math.random()*5+3).toFixed(1)}s;
-      --o:${(Math.random()*0.5+0.1).toFixed(2)};
-      animation-delay:${(Math.random()*6).toFixed(1)}s;
-    `;
-    container.appendChild(s);
-  }
-}
-
-// ─── VERSE MODAL ─────────────────────────────────────────────────────────────
-const modal = document.getElementById('verseModal');
-const modalRef = document.getElementById('verseModalRef');
-const modalContent = document.getElementById('verseModalContent');
-const modalClose = document.getElementById('verseModalClose');
+/* ═══════════════════════════════════════
+   VERSE MODAL
+═══════════════════════════════════════ */
+const modal       = document.getElementById('verseModal');
+const modalRef    = document.getElementById('verseModalRef');
+const modalContent= document.getElementById('verseModalContent');
+const modalClose  = document.getElementById('verseModalClose');
 
 async function openVerseModal(book, verse) {
   modalRef.textContent = `${book} ${verse}`;
   modalContent.className = 'verse-modal-loading';
   modalContent.textContent = 'Loading verse…';
   modal.classList.add('visible');
-
   const text = await fetchVerseText(book, verse);
   modalContent.className = 'verse-modal-text';
   modalContent.textContent = text;
 }
+function closeVerseModal() { modal.classList.remove('visible'); }
+modalClose.addEventListener('click', e => { e.stopPropagation(); closeVerseModal(); });
+modal.addEventListener('click', e => { if (e.target === modal) closeVerseModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeVerseModal(); });
 
-function closeVerseModal() {
-  modal.classList.remove('visible');
+/* ═══════════════════════════════════════
+   SHARED: VERSE PANEL BUILDER
+═══════════════════════════════════════ */
+let currentOpen = null;
+
+function closeCurrentOpen() {
+  if (currentOpen) { currentOpen.classList.remove('open'); currentOpen = null; }
 }
 
-modalClose.addEventListener('click', (e) => { e.stopPropagation(); closeVerseModal(); });
-modal.addEventListener('click', (e) => { if (e.target === modal) closeVerseModal(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVerseModal(); });
+function makeVersePanel(bookName) {
+  const book = BOOK_MAP[bookName];
+  if (!book) return null;
 
-// ─── BUILD UI ─────────────────────────────────────────────────────────────────
-function buildUI() {
-  const app = document.getElementById('app');
+  const panel = document.createElement('div');
+  panel.className = 'verse-panel';
+
+  const title = document.createElement('div');
+  title.className = 'verse-panel-title';
+  title.textContent = 'Keystone Verses';
+  panel.appendChild(title);
+
+  const list = document.createElement('ul');
+  list.className = 'verse-list';
+
+  const MOBILE_LIMIT = 5;
+  book.verses.forEach((v, idx) => {
+    const li = document.createElement('li');
+    li.className = 'verse-item';
+    li.textContent = `${bookName} ${v}`;
+    if (idx >= MOBILE_LIMIT) li.classList.add('hidden-verse');
+    li.addEventListener('click', e => { e.stopPropagation(); openVerseModal(bookName, v); });
+    list.appendChild(li);
+  });
+  panel.appendChild(list);
+
+  if (book.verses.length > MOBILE_LIMIT) {
+    const btn = document.createElement('button');
+    btn.className = 'verse-more-btn';
+    btn.textContent = `+ ${book.verses.length - MOBILE_LIMIT} more`;
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      list.querySelectorAll('.hidden-verse').forEach(li => li.classList.remove('hidden-verse'));
+      btn.remove();
+    });
+    panel.appendChild(btn);
+
+    function syncBtn() {
+      if (window.innerWidth > 700) {
+        list.querySelectorAll('.hidden-verse').forEach(li => li.classList.remove('hidden-verse'));
+        if (btn.parentNode) btn.remove();
+      }
+    }
+    window.addEventListener('resize', syncBtn);
+    syncBtn();
+  }
+
+  return panel;
+}
+
+function attachToggle(el) {
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    if (currentOpen && currentOpen !== el) closeCurrentOpen();
+    el.classList.toggle('open');
+    currentOpen = el.classList.contains('open') ? el : null;
+  });
+}
+
+document.body.addEventListener('click', closeCurrentOpen);
+
+/* ═══════════════════════════════════════
+   STARS
+═══════════════════════════════════════ */
+function buildStars() {
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 180; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random()*1.8+0.4;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*5+3).toFixed(1)}s;--o:${(Math.random()*0.5+0.1).toFixed(2)};animation-delay:${(Math.random()*6).toFixed(1)}s`;
+    c.appendChild(s);
+  }
+}
+
+/* ═══════════════════════════════════════
+   VIEW 1: ATLAS
+═══════════════════════════════════════ */
+function buildAtlas() {
+  const app = document.getElementById('atlas-app');
+  if (app.children.length) return; // already built
+
   let lastTestament = null;
-
   BOOKS.forEach(book => {
     if (book.testament !== lastTestament) {
       lastTestament = book.testament;
       const label = document.createElement('div');
       label.className = 'testament-label';
-      label.innerHTML = `
-        <div class="testament-divider"></div>
-        ${book.testament === 'OT' ? 'Old Testament' : 'New Testament'}
-      `;
+      label.innerHTML = `<div class="testament-divider"></div>${book.testament === 'OT' ? 'Old Testament' : 'New Testament'}`;
       const grid = document.createElement('div');
-      grid.className = 'grid';
+      grid.className = 'atlas-grid';
       grid.dataset.testament = book.testament;
       app.appendChild(label);
       app.appendChild(grid);
     }
-
-    const currentGrid = app.querySelector(`.grid[data-testament="${book.testament}"]`);
-    currentGrid.appendChild(createBookEl(book));
+    const grid = app.querySelector(`.atlas-grid[data-testament="${book.testament}"]`);
+    grid.appendChild(makeAtlasBook(book));
   });
 }
 
-let currentOpen = null;
-
-function createBookEl(book) {
+function makeAtlasBook(book) {
   const el = document.createElement('div');
   el.className = 'book';
 
@@ -587,87 +849,154 @@ function createBookEl(book) {
 
   oval.appendChild(name);
   oval.appendChild(theme);
-
-  // Verse reference list panel
-  const panel = document.createElement('div');
-  panel.className = 'verse-panel';
-
-  const panelTitle = document.createElement('div');
-  panelTitle.className = 'verse-panel-title';
-  panelTitle.textContent = 'Keystone Verses';
-
-  const list = document.createElement('ul');
-  list.className = 'verse-list';
-
-  const MOBILE_LIMIT = 5;
-  const isMobile = () => window.innerWidth <= 600;
-
-  book.verses.forEach((v, idx) => {
-    const li = document.createElement('li');
-    li.className = 'verse-item';
-    li.textContent = `${book.name} ${v}`;
-    if (idx >= MOBILE_LIMIT) li.classList.add('hidden-verse');
-    li.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openVerseModal(book.name, v);
-    });
-    list.appendChild(li);
-  });
-
-  // "More" button — only relevant when verses > 5 on mobile
-  let moreBtn = null;
-  if (book.verses.length > MOBILE_LIMIT) {
-    moreBtn = document.createElement('button');
-    moreBtn.className = 'verse-more-btn';
-    const remaining = book.verses.length - MOBILE_LIMIT;
-    moreBtn.textContent = `+ ${remaining} more`;
-    moreBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      list.querySelectorAll('.hidden-verse').forEach(li => li.classList.remove('hidden-verse'));
-      moreBtn.remove();
-    });
-  }
-
-  panel.appendChild(panelTitle);
-  panel.appendChild(list);
-  if (moreBtn) panel.appendChild(moreBtn);
-
-  // On desktop, always show all verses
-  function syncVisibility() {
-    if (!isMobile()) {
-      list.querySelectorAll('.hidden-verse').forEach(li => li.classList.remove('hidden-verse'));
-      if (moreBtn && moreBtn.parentNode) moreBtn.remove();
-    }
-  }
-  window.addEventListener('resize', syncVisibility);
-  syncVisibility();
-
   el.appendChild(oval);
-  el.appendChild(panel);
 
-  // Toggle verse list on oval click
-  el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (currentOpen && currentOpen !== el) {
-      currentOpen.classList.remove('open');
-    }
-    el.classList.toggle('open');
-    currentOpen = el.classList.contains('open') ? el : null;
-  });
+  const panel = makeVersePanel(book.name);
+  if (panel) el.appendChild(panel);
 
+  attachToggle(el);
   return el;
 }
 
-// Close panels on body click
-document.body.addEventListener('click', () => {
-  if (currentOpen) {
-    currentOpen.classList.remove('open');
-    currentOpen = null;
+/* ═══════════════════════════════════════
+   VIEW 2: CANON
+═══════════════════════════════════════ */
+function buildCanon() {
+  const app = document.getElementById('canon-app');
+  if (app.children.length) return;
+
+  CANON.forEach(({ testament, categories }) => {
+    const block = document.createElement('div');
+    block.className = 'canon-testament-block';
+
+    const heading = document.createElement('div');
+    heading.className = 'canon-testament-title';
+    heading.textContent = testament;
+    block.appendChild(heading);
+
+    const catRow = document.createElement('div');
+    catRow.className = 'canon-categories';
+
+    categories.forEach(({ title, books }) => {
+      const cat = document.createElement('div');
+      cat.className = 'canon-category';
+
+      const catTitle = document.createElement('div');
+      catTitle.className = 'canon-cat-title';
+      catTitle.innerHTML = `${title} <span class="canon-cat-count">${books.length}</span>`;
+      cat.appendChild(catTitle);
+
+      const bookList = document.createElement('div');
+      bookList.className = 'canon-book-list';
+
+      books.forEach(bookName => {
+        const item = document.createElement('div');
+        item.className = 'canon-book-item';
+        item.innerHTML = `<span>${bookName}</span><span class="canon-book-chevron">›</span>`;
+
+        const panel = makeVersePanel(bookName);
+        if (panel) item.appendChild(panel);
+        attachToggle(item);
+        bookList.appendChild(item);
+      });
+
+      cat.appendChild(bookList);
+      catRow.appendChild(cat);
+    });
+
+    block.appendChild(catRow);
+    app.appendChild(block);
+  });
+}
+
+/* ═══════════════════════════════════════
+   VIEW 3: THEMES
+═══════════════════════════════════════ */
+function buildThemes() {
+  const app = document.getElementById('themes-app');
+  if (app.children.length) return;
+
+  const grid = document.createElement('div');
+  grid.className = 'theme-grid';
+
+  THEMES.forEach(theme => {
+    const node = document.createElement('div');
+    node.className = 'theme-node';
+
+    const header = document.createElement('div');
+    header.className = 'theme-node-header';
+    header.innerHTML = `
+      <div class="theme-node-icon">${theme.icon}</div>
+      <div class="theme-node-text">
+        <div class="theme-node-title">${theme.title}</div>
+        <div class="theme-node-desc">${theme.desc}</div>
+      </div>`;
+    node.appendChild(header);
+
+    const pills = document.createElement('div');
+    pills.className = 'theme-book-pills';
+
+    theme.books.forEach(bookName => {
+      const pill = document.createElement('div');
+      pill.className = 'theme-pill';
+      pill.textContent = bookName;
+
+      const panel = makeVersePanel(bookName);
+      if (panel) pill.appendChild(panel);
+      attachToggle(pill);
+      pills.appendChild(pill);
+    });
+
+    node.appendChild(pills);
+    grid.appendChild(node);
+  });
+
+  app.appendChild(grid);
+}
+
+/* ═══════════════════════════════════════
+   ROUTING
+═══════════════════════════════════════ */
+const VIEW_LABELS = { atlas: 'Atlas View', canon: 'Canon View', themes: 'Theme Map' };
+const VIEW_BUILDERS = { atlas: buildAtlas, canon: buildCanon, themes: buildThemes };
+
+function showView(viewId) {
+  closeCurrentOpen();
+  // pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  if (viewId === 'home') {
+    document.getElementById('page-home').classList.add('active');
+    document.getElementById('nav').style.display = 'none';
+  } else {
+    document.getElementById(`page-${viewId}`).classList.add('active');
+    document.getElementById('nav').style.display = 'flex';
+    document.getElementById('navCurrent').textContent = VIEW_LABELS[viewId];
+    document.querySelectorAll('.nav-view-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.view === viewId);
+    });
+    VIEW_BUILDERS[viewId]();
   }
+  window.scrollTo(0,0);
+}
+
+// Home cards
+document.querySelectorAll('.home-card[data-goto]').forEach(card => {
+  card.addEventListener('click', () => showView(card.dataset.goto));
 });
 
+// Nav home
+document.getElementById('navHome').addEventListener('click', () => showView('home'));
+
+// Nav view buttons
+document.querySelectorAll('.nav-view-btn').forEach(btn => {
+  btn.addEventListener('click', () => showView(btn.dataset.view));
+});
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
 buildStars();
-buildUI();
+showView('home');
 </script>
 </body>
 </html>
