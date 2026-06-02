@@ -162,16 +162,16 @@ body {
 ═══════════════════════════════════════════════════ */
 .verse-panel {
   position: absolute; top: calc(100% + 12px); left: 50%;
-  transform: translateX(-50%) scaleY(0); transform-origin: top center;
+  transform: translateX(-50%) translateY(-8px); transform-origin: top center;
   width: 300px; background: var(--panel-bg);
   border: 1px solid var(--gold-border); border-radius: 18px;
   padding: 18px 20px; z-index: 400;
-  opacity: 0; pointer-events: none;
-  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+  opacity: 0; pointer-events: none; visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease;
   box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 40px rgba(201,169,110,0.1);
 }
 .open > .verse-panel, .book.open .verse-panel {
-  opacity: 1; transform: translateX(-50%) scaleY(1); pointer-events: auto;
+  opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; visibility: visible;
 }
 .verse-panel-title {
   font-family: 'Cinzel', serif; font-size: 1.1rem; letter-spacing: 0.2em;
@@ -335,6 +335,7 @@ body {
   background: var(--gold-faint);
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   transform: translateX(3px);
+  z-index: 300;
 }
 .canon-book-chevron {
   font-size: 0.6rem; color: rgba(201,169,110,0.4); transition: transform 0.25s;
@@ -344,13 +345,12 @@ body {
 /* verse panel for canon view — right-aligned when space */
 .canon-book-item .verse-panel {
   width: 280px; left: 0; top: calc(100% + 8px);
-  transform: translateX(0) scaleY(0);
-  transform-origin: top center;
+  transform: translateX(0) translateY(-8px);
   background: var(--panel-bg);
 }
 .canon-book-item.open .verse-panel {
-  transform: translateX(0) scaleY(1);
-  opacity: 1; pointer-events: auto;
+  transform: translateX(0) translateY(0);
+  opacity: 1; pointer-events: auto; visibility: visible;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -404,7 +404,8 @@ body {
   border-color: var(--gold); color: var(--gold);
   background: var(--gold-faint);
 }
-.theme-pill .verse-panel { width: 280px; top: 100%; left: 0; }
+.theme-pill .verse-panel { width: 280px; top: calc(100% + 8px); left: 0; transform: translateX(0) translateY(-8px); }
+.theme-pill.open .verse-panel { transform: translateX(0) translateY(0); opacity: 1; pointer-events: auto; visibility: visible; }
 
 /* ═══════════════════════════════════════════════════
    RESPONSIVE
